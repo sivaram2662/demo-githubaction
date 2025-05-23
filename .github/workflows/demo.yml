@@ -65,6 +65,9 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: terraform plan
+        run: terraform plan -var-file
+
       # Uncomment to apply changes automatically (CAUTION: applies infra changes)
       # - name: Terraform Apply
       #   run: terraform apply -auto-approve
