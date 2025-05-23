@@ -66,7 +66,7 @@ jobs:
         run: terraform validate
 
       - name: terraform plan
-        run: terraform plan -var-file
+        run: terraform plan -var-file zones.tfvars
 
       # Uncomment to apply changes automatically (CAUTION: applies infra changes)
       # - name: Terraform Apply
