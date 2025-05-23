@@ -8,9 +8,14 @@ jobs:
     steps:
       - name: my-step
         run: echo "Hello world"
+         
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.0
 
-      - name: terraform first command
-        run: terraform init
+    - name: Terraform Init
+      run: terraform init
 
-      - name: terraform sencond command
-        run: terraform validate
+    - name: Terraform Plan
+      run: terraform plan
