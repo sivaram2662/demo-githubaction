@@ -8,3 +8,9 @@ jobs:
     steps:
       - name: my-step
         run: echo "Hello world"
+
+      - name: terraform first command
+        run: terraform init
+
+      - name: terraform sencond command
+        run: terraform validate
