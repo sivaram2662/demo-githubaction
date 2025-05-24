@@ -1,15 +1,18 @@
 name: Deploy with Docker and Terraform
 
 on:
-  # push:
-  #   branches:
-  #     - main
   workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage to run (aws-login, docker, ecr-image, terraform-code)'
+        required: true
+        default: 'aws-login'
 
+#stage-1
 jobs:
-  deploy:
+  aws-login:
+    if: ${{ github.event.inputs.stage == 'aws-login' }}
     runs-on: ubuntu-latest
-# Login to aws account
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
@@ -19,41 +22,74 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 1: Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+        
+#stage-2
+  docker:
+    if: ${{ github.event.inputs.stage == 'docker' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
-      # Step 2: Build Docker Image
+ # Step 2: Build Docker Image
       - name: Build Docker Image
         run: docker build -t my-app-image:2 .
 
       - name: Check Docker Images
         run: docker images -a
 
-      # Step 3: Login to Amazon ECR
+#stage-3
+  ecr-image:
+    if: ${{ github.event.inputs.stage == 'ecr-image' }}
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      ECR_REGISTRY: ${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+ # Step 1: Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+ # Step 3: Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION \
           | docker login --username AWS --password-stdin $ECR_REGISTRY
-
-      # Step 4: Tag Docker image for ECR
+  # Step 4: Tag Docker image for ECR
       - name: Tag Docker image for ECR
         run: |
           docker tag my-app-image:2 $ECR_REGISTRY/$ECR_REPOSITORY:2
-
-      # Step 5: Push Docker image to ECR
+ # Step 5: Push Docker image to ECR
       - name: Push Docker image to ECR
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:2
 
-      # Step 6: Set up Terraform
+#stage-4
+  terraform-code:
+    if: ${{ github.event.inputs.stage == 'terraform-code' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -65,9 +101,8 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: terraform plan
+      - name: Terraform Plan
         run: terraform plan -var-file zones.tfvars
 
-      # Uncomment to apply changes automatically (CAUTION: applies infra changes)
       # - name: Terraform Apply
       #   run: terraform apply -auto-approve
