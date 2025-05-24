@@ -39,7 +39,7 @@ jobs:
 
       # Step 2: Build Docker Image
       - name: Build Docker Image
-        run: docker build -t my-app-image:2 .
+        run: docker build -t my-app-image:3 .
 
       - name: Check Docker Images
         run: docker images -a
@@ -59,12 +59,12 @@ jobs:
       # Step 4: Tag Docker image for ECR
       - name: Tag Docker image for ECR
         run: |
-          docker tag my-app-image:2 $ECR_REGISTRY/$ECR_REPOSITORY:2
+          docker tag my-app-image:3 $ECR_REGISTRY/$ECR_REPOSITORY:3
 
       # Step 5: Push Docker image to ECR
       - name: Push Docker image to ECR
         run: |
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:2
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:3
 #stage-4
   terraform-code:
     runs-on: ubuntu-latest
