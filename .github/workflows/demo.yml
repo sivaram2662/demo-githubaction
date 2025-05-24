@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+# Login to aws account
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
@@ -32,7 +32,7 @@ jobs:
 
       # Step 2: Build Docker Image
       - name: Build Docker Image
-        run: docker build -t my-app-image:1 .
+        run: docker build -t my-app-image:2 .
 
       - name: Check Docker Images
         run: docker images -a
