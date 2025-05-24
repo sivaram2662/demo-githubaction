@@ -37,6 +37,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Set up Docker Buildx
+        uses: cd ../Dockerfile
+
       # Step 2: Build Docker Image
       - name: Build Docker Image
         run: docker build -t my-app-image:3 .
