@@ -10,6 +10,7 @@ on:
 jobs:
   aws-login:
     runs-on: ubuntu-latest
+    
 # Login to aws account
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -37,12 +38,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up Docker Buildx
-        uses: cd ../Dockerfile
+      # - name: Set up Docker Buildx
+      #   uses: cd ../Dockerfile
 
       # Step 2: Build Docker Image
       - name: Build Docker Image
-        run: docker build -t my-app-image:3 .
+        run: docker build -t my-app-image:3 ../Dockerfile
 
       - name: Check Docker Images
         run: docker images -a
