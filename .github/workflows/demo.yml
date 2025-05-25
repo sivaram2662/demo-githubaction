@@ -6,9 +6,12 @@ on:
       - main
   workflow_dispatch:
 
+
+#stage-1
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
 # Login to aws account
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -27,13 +30,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: deploy
+#stage-2
+  test:
+    runs-on: ubuntu-latest
+    needs: deploy
     
-  #   steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+    steps:
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v2
 
       # Step 2: Build Docker Image
       - name: Build Docker Image
@@ -42,6 +46,13 @@ jobs:
       - name: Check Docker Images
         run: docker images -a
 
+
+#stage-3
+  # ecr-image:
+  #   runs-on: ubuntu-latest
+  #   needs: docker
+
+  #   steps:
       # Step 3: Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
@@ -57,6 +68,13 @@ jobs:
       - name: Push Docker image to ECR
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:2
+
+
+#stage-4
+  # terraform-code:
+  #   runs-on: ubuntu-latest
+  #   needs: ecr-image
+  #   steps:
 
       # Step 6: Set up Terraform
       - name: Set up Terraform
