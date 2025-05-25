@@ -44,7 +44,7 @@ jobs:
         run: docker build -t my-app-image:2 .
 
       - name: Check Docker Images
-        run: docker images -a
+        run: docker images -a 
 
 
 #stage-3
